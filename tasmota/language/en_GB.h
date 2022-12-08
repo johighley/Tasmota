@@ -260,7 +260,7 @@
 #define D_RESTART_IN "Restart in"
 #define D_SECONDS "seconds"
 #define D_DEVICE_WILL_RESTART "Device will restart in a few seconds"
-#define D_BUTTON_TOGGLE "Toggle"
+#define D_BUTTON_TOGGLE "Toggle On/Off"
 #define D_CONFIGURATION "Configuration"
 #define D_INFORMATION "Information"
 #define D_FIRMWARE_UPGRADE "Firmware Upgrade"

@@ -393,8 +393,11 @@ const char HTTP_END[] PROGMEM =
   "</body>"
   "</html>";
 
-const char HTTP_DEVICE_CONTROL[] PROGMEM = "<td style='width:%d%%'><button onclick='la(\"&o=%d\");'>%s%s</button></td>";  // ?o is related to WebGetArg(PSTR("o"), tmp, sizeof(tmp))
+const char HTTP_DEVICE_CONTROL[] PROGMEM = "<td style='width:%d%%;padding-bottom:8px;'><button onclick='la(\"&o=%d\");'>%s%s</button></td>";  // ?o is related to WebGetArg(PSTR("o"), tmp, sizeof(tmp))
+const char HTTP_POOL_CONTROL[] PROGMEM = "<td style='width:%d%%;padding-bottom:5px;'><button onclick='jh(%d,\"&o=%d\");'>%s</button></td>"; 
 const char HTTP_DEVICE_STATE[] PROGMEM = "<td style='width:%d%%;text-align:center;font-weight:%s;font-size:%dpx'>%s</td>";
+
+const char kPoolButtonTitle[] PROGMEM = "Wht/Mag/Blue/Grn|Party Theme|Romance Theme|Caribbean Theme|American Theme|California Sunset Theme|Royal Theme|Blue|Green|Red|White|Magenta";
 
 enum ButtonTitle {
   BUTTON_RESTART, BUTTON_RESET_CONFIGURATION,
@@ -1282,6 +1285,16 @@ void HandleRoot(void)
           WSContentSend_P(HTTP_DEVICE_CONTROL, 100 / cols, idx,
             (set_button) ? SettingsText(SET_BUTTON1 + idx -1) : (cols < 5) ? PSTR(D_BUTTON_TOGGLE) : "",
             (set_button) ? "" : (TasmotaGlobal.devices_present > 1) ? stemp : "");
+          WSContentSend_P(PSTR("</tr><tr>"));
+          WSContentSend_P(PSTR("<table style='width:100%%' id='elPoolButtons'>"));  
+          WSContentSend_P(PSTR("<tr>"));  
+          char pooltext[25];
+          for (uint32_t i = 0; i < 12; i++) {
+             GetTextIndexed(pooltext, sizeof(pooltext), i, kPoolButtonTitle);
+             WSContentSend_P(HTTP_POOL_CONTROL, 100 / cols, i+1, idx, pooltext);
+             WSContentSend_P(PSTR("</tr><tr>"));
+          }
+          WSContentSend_P(PSTR("</tr></table></tr><tr>"));
 #ifdef USE_SHUTTER
         }
 #endif  // USE_SHUTTER
@@ -1310,6 +1323,8 @@ void HandleRoot(void)
 #endif  // ESP32
     WSContentButton(BUTTON_CONSOLE);
 #else
+    WSContentSend_P(PSTR("<p style='padding-top:20px'><button onclick='adv()'>Advanced</button></p>"));
+    WSContentSend_P(PSTR("<div id='idAdvanced' style='display:none'>"));
     WSContentSpaceButton(BUTTON_CONFIGURATION);
     WSContentButton(BUTTON_INFORMATION);
     WSContentButton(BUTTON_FIRMWARE_UPGRADE);
@@ -1320,6 +1335,7 @@ void HandleRoot(void)
     }
 #endif  // Not FIRMWARE_MINIMAL
     WSContentButton(BUTTON_RESTART);
+    WSContentSend_P(PSTR("</div>"));
   }
   WSContentStop();
 }

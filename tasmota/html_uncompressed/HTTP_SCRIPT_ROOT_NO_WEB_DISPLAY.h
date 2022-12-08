@@ -1,23 +1,51 @@
 const char HTTP_SCRIPT_ROOT[] PROGMEM =
   "var ft;"
-  "function la(p){"
-    "a=p||'';"
-    "clearTimeout(ft);clearTimeout(lt);"
-    "if(x!=null){x.abort()}"             // Abort if no response within 2 seconds (happens on restart 1)
-    "x=new XMLHttpRequest();"
-    "x.onreadystatechange=()=>{"
-      "if(x.readyState==4&&x.status==200){"
-        "var s=x.responseText.replace(/{t}/g,\"<table style='width:100%%'>\")"
-                            ".replace(/{s}/g,\"<tr><th>\")"
-//                            ".replace(/{m}/g,\"</th><td>\")"
-                            ".replace(/{m}/g,\"</th><td style='width:20px;white-space:nowrap'>\")"  // I want a right justified column with left justified text
-                            ".replace(/{e}/g,\"</td></tr>\");"
-        "eb('l1').innerHTML=s;"
-        "clearTimeout(ft);clearTimeout(lt);"
-        "lt=setTimeout(la,%d);"               // Settings.web_refresh
+  "async function la(p){"
+      "await makeRequest(p);"
+      "ts();"
+  "}"
+  "function sleep(ms) { return new Promise(resolve => setTimeout(resolve,ms)); }"
+  "async function jh(n,p){"
+      "ts(false);"
+      "for (var r = 0; r < n; r++) {"
+          "await makeRequest(p, false);"
+          "await sleep(250);"
+          "await makeRequest(p, false);"
+          "await sleep(250);"
       "}"
-    "};"
-    "x.open('GET','.?m=1'+a,true);"       // ?m related to Webserver->hasArg("m")
-    "x.send();"
-    "ft=setTimeout(la,2e4);"              // 20s failure timeout
-  "}";
+      "ts();"      
+  "}"
+  "function ts(en) {"
+      "en = (typeof en !== 'undefined') ? en : eb('l1').innerHTML.includes(\">ON<\");"
+      "var nodes=eb('elPoolButtons').getElementsByTagName('button');"
+      "for(var i = 0; i < nodes.length; i++){ nodes[i].disabled = !en; }"    
+  "}"
+  "function sr(t) {"
+          "var s=t.replace(/{t}/g,\"<table style='width:100%%'>\")"
+                 ".replace(/{s}/g,\"<tr><th>\")"
+                 ".replace(/{m}/g,\"</th><td style='width:20px;white-space:nowrap'>\")"  // I want a right justified column with left justified text
+                 ".replace(/{e}/g,\"</td></tr>\");"
+          "eb('l1').innerHTML=s;"
+          "clearTimeout(ft);clearTimeout(lt);"
+          "lt=setTimeout(la,%d);"               // Settings.web_refresh
+  "}"
+  "function er(t) { console.log('XHR Error'); console.log(t); }"
+  "function makeRequest(p) {"
+    "return new Promise(function(resolve,reject){"
+      "a=p||'';"
+      "clearTimeout(ft);clearTimeout(lt);"
+      "if(x!=null){x.abort()}"             // Abort if no response within 2 seconds (happens on restart 1)
+      "x=new XMLHttpRequest();"
+      "x.onload=()=>{"
+        "if (x.status==200){ sr(x.responseText); resolve('Success'); } else { er(x.statusText); reject('Error'); }"
+      "};"
+      "x.open('GET','.?m=1'+a,true);"       // ?m related to Webserver->hasArg("m")
+      "x.send();"
+      "ft=setTimeout(la,2e4);"              // 20s failure timeout
+    "});"
+  "}"
+  "function adv() {"
+     "var x=eb('idAdvanced');"
+     "x.style.display!=='none' ? x.style.display='none' : x.style.display='block';"
+  "}"
+;
